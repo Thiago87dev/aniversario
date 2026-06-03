@@ -87,12 +87,6 @@ export default function GeradorConvite() {
 
       <div className='flex justify-between items-center border-b pb-4 mb-2'>
         <h1 className='text-2xl font-bold'>Gerador de Convites 🎂</h1>
-        <Link 
-          href="/scanner" 
-          className="bg-gray-800 text-white px-3 py-1.5 rounded text-xs font-semibold hover:bg-gray-900 transition-colors"
-        >
-          Ir para Portaria 🎟️
-        </Link>
       </div>
 
       <input
@@ -127,6 +121,13 @@ export default function GeradorConvite() {
           </div>
         </div>
       )}
+      
+        <Link 
+          href="/scanner" 
+          className='block text-center bg-black hover:bg-gray-700 text-white p-2 rounded text-sm font-semibold transition-colors'
+        >
+          Ir para Portaria 🎟️
+        </Link>
     </main>
   );
 }
