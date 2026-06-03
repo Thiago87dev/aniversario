@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import QRCode from 'qrcode';
+import Link from 'next/link';
 
 export default function GeradorConvite() {
   const [nome, setNome] = useState('');
@@ -12,11 +13,11 @@ export default function GeradorConvite() {
     if (!nome) return alert('Digite o nome do convidado!');
     setLoading(true);
 
-    // Criamos um ID único ou usamos o próprio nome limpo + um token aleatório
+    // Criamos um ID único baseado no nome + um token aleatório
     const idUnico = btoa(encodeURIComponent(`${nome}-${Math.floor(1000 + Math.random() * 9000)}`));
 
-    // URL que o segurança vai acessar ao escanear o QR Code
-    const urlValidacao = `${window.location.origin}/validar?id=${idUnico}&nome=${encodeURIComponent(nome)}`;
+    // Ajustado para apontar para /scanner (casando com a tela da portaria)
+    const urlValidacao = `${window.location.origin}/scanner?id=${idUnico}&nome=${encodeURIComponent(nome)}`;
 
     try {
       const urlImage = await QRCode.toDataURL(urlValidacao, { width: 400, margin: 2 });
@@ -30,19 +31,21 @@ export default function GeradorConvite() {
 
   return (
     <main className='p-6 max-w-md mx-auto flex flex-col gap-4'>
-      <h1 className='text-2xl font-bold text-center'>Gerador de Convites 🎂</h1>
+      <div className='flex justify-between items-center border-b pb-4 mb-2'>
+        <h1 className='text-2xl font-bold'>Gerador de Convites 🎂</h1>
+      </div>
 
       <input
         type='text'
         placeholder='Nome do Convidado'
-        className='border p-2 rounded text-black'
+        className='border p-2 rounded text-black w-full'
         value={nome}
         onChange={e => setNome(e.target.value)}
       />
 
       <button
         onClick={gerarConvite}
-        className='bg-blue-600 text-white p-2 rounded font-semibold hover:bg-blue-700'
+        className='bg-blue-600 text-white p-2 rounded font-semibold hover:bg-blue-700 transition-colors cursor-pointer disabled:opacity-50'
         disabled={loading}
       >
         {loading ? 'Gerando...' : 'Gerar QR Code'}
@@ -53,15 +56,24 @@ export default function GeradorConvite() {
           <p className='text-black font-medium text-center'>Convite de: {nome}</p>
           <img src={qrImageUrl} alt='QR Code Convite' className='w-48 h-48' />
 
-          <div className='flex gap-2 w-full mt-2'>
-            <button className='flex-1 bg-green-500 cursor-pointer text-white p-2 rounded text-sm font-semibold'>
-              <a href={qrImageUrl} download={`convite-${nome}.png`}>
-                Baixar Imagem do QR Code
-              </a>
-            </button>
+          <div className='w-full mt-2'>
+            {/* Corrigido: Removido o <button> de fora e estilizado o <a> diretamente */}
+            <a
+              href={qrImageUrl}
+              download={`convite-${nome}.png`}
+              className='block text-center bg-green-500 hover:bg-green-600 text-white p-2 rounded text-sm font-semibold transition-colors'
+            >
+              Baixar Imagem do QR Code
+            </a>
           </div>
         </div>
       )}
+      <Link
+        href='/scanner'
+        className='block text-center bg-black hover:bg-gray-800 text-white p-2 rounded text-sm font-semibold transition-colors'
+      >
+        Ir para Portaria
+      </Link>
     </main>
   );
 }
