@@ -79,7 +79,7 @@ export default function ScannerPortaria() {
           <p>{statusCheckin.mensagem}</p>
           <button 
             onClick={reiniciarScanner}
-            className="mt-4 bg-white text-white px-4 py-2 rounded text-sm hover:bg-gray-100"
+            className="mt-4 bg-white text-black px-4 py-2 rounded text-sm hover:bg-gray-100"
           >
             Escanear Próximo
           </button>
