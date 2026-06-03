@@ -1,22 +1,62 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import Link from 'next/link';
+
+// 1. Criamos a interface para mapear exatamente o comportamento do evento nativo
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
+}
 
 export default function GeradorConvite() {
   const [nome, setNome] = useState('');
   const [qrImageUrl, setQrImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // 2. Substituímos o 'any' pela nossa nova interface (ou null)
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [mostrarBotaoInstalar, setMostrarBotaoInstalar] = useState(false);
+
+  useEffect(() => {
+    // 3. Tipamos o parâmetro 'e' da função com a nossa interface
+    const capturarPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent); // Fazemos o "type casting" seguro aqui
+      setMostrarBotaoInstalar(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', capturarPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', capturarPrompt);
+    };
+  }, []);
+
+  const lidarComInstalacao = async () => {
+    if (!deferredPrompt) return;
+    
+    deferredPrompt.prompt();
+    
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`Usuário escolheu: ${outcome}`);
+    
+    setDeferredPrompt(null);
+    setMostrarBotaoInstalar(false);
+  };
+
+  // ... O restante do código (gerarConvite e return) continua exatamente igual
 
   const gerarConvite = async () => {
     if (!nome) return alert('Digite o nome do convidado!');
     setLoading(true);
 
-    // Criamos um ID único baseado no nome + um token aleatório
     const idUnico = btoa(encodeURIComponent(`${nome}-${Math.floor(1000 + Math.random() * 9000)}`));
-
-    // Ajustado para apontar para /scanner (casando com a tela da portaria)
     const urlValidacao = `${window.location.origin}/scanner?id=${idUnico}&nome=${encodeURIComponent(nome)}`;
 
     try {
@@ -31,8 +71,28 @@ export default function GeradorConvite() {
 
   return (
     <main className='p-6 max-w-md mx-auto flex flex-col gap-4'>
+      
+      {/* Banner de Instalação Prática do PWA */}
+      {mostrarBotaoInstalar && (
+        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg flex flex-col gap-2 items-center text-center animate-bounce">
+          <p className="text-sm text-blue-900 font-medium">Instale este app no seu celular para acessar mais rápido!</p>
+          <button 
+            onClick={lidarComInstalacao}
+            className="bg-blue-600 text-white text-xs px-4 py-2 rounded-md font-bold hover:bg-blue-700 transition-colors cursor-pointer w-full"
+          >
+            📲 Instalar Aplicativo de Convites
+          </button>
+        </div>
+      )}
+
       <div className='flex justify-between items-center border-b pb-4 mb-2'>
         <h1 className='text-2xl font-bold'>Gerador de Convites 🎂</h1>
+        <Link 
+          href="/scanner" 
+          className="bg-gray-800 text-white px-3 py-1.5 rounded text-xs font-semibold hover:bg-gray-900 transition-colors"
+        >
+          Ir para Portaria 🎟️
+        </Link>
       </div>
 
       <input
@@ -57,9 +117,8 @@ export default function GeradorConvite() {
           <img src={qrImageUrl} alt='QR Code Convite' className='w-48 h-48' />
 
           <div className='w-full mt-2'>
-            {/* Corrigido: Removido o <button> de fora e estilizado o <a> diretamente */}
-            <a
-              href={qrImageUrl}
+            <a 
+              href={qrImageUrl} 
               download={`convite-${nome}.png`}
               className='block text-center bg-green-500 hover:bg-green-600 text-white p-2 rounded text-sm font-semibold transition-colors'
             >
@@ -68,12 +127,6 @@ export default function GeradorConvite() {
           </div>
         </div>
       )}
-      <Link
-        href='/scanner'
-        className='block text-center bg-black hover:bg-gray-800 text-white p-2 rounded text-sm font-semibold transition-colors'
-      >
-        Ir para Portaria
-      </Link>
     </main>
   );
 }
