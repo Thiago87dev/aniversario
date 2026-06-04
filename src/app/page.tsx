@@ -67,7 +67,7 @@ export default function GeradorConvite() {
 
   return (
     /* CORREÇÃO: Forçado 'bg-gray-50' e 'text-black' no main para o fundo não escurecer totalmente sozinho */
-    <main className='p-6 max-w-md mx-auto flex flex-col gap-4 bg-gray-50 text-black min-h-screen'>
+    <main className='p-6 min-w-full mx-auto flex flex-col gap-4 bg-gray-50 text-black'>
       
       {/* Banner de Instalação Prática do PWA */}
       {mostrarBotaoInstalar && (
@@ -83,7 +83,7 @@ export default function GeradorConvite() {
         </div>
       )}
 
-      <div className='flex justify-between items-center border-b border-gray-300 pb-4 mb-2'>
+      <div className='flex justify-center items-center border-b border-gray-300 pb-4 mb-2'>
         <h1 className='text-2xl font-bold text-black'>Gerador de Convites 🎂</h1>
       </div>
 
@@ -120,8 +120,6 @@ export default function GeradorConvite() {
           </div>
         </div>
       )}
-      
-      {/* CORREÇÃO: Mudado o fundo do botão para 'bg-gray-800' para destacar melhor no fundo claro fixo */}
       <Link 
         href="/scanner" 
         className='block text-center bg-gray-800 hover:bg-gray-900 text-white p-2 rounded text-sm font-semibold transition-colors mt-auto'
