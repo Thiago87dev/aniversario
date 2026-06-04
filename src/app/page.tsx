@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import Link from 'next/link';
 
-// 1. Criamos a interface para mapear exatamente o comportamento do evento nativo
+// 1. Interface para o evento nativo de instalação do PWA
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
   readonly userChoice: Promise<{
@@ -19,15 +19,13 @@ export default function GeradorConvite() {
   const [qrImageUrl, setQrImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
   
-  // 2. Substituímos o 'any' pela nossa nova interface (ou null)
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [mostrarBotaoInstalar, setMostrarBotaoInstalar] = useState(false);
 
   useEffect(() => {
-    // 3. Tipamos o parâmetro 'e' da função com a nossa interface
     const capturarPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent); // Fazemos o "type casting" seguro aqui
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
       setMostrarBotaoInstalar(true);
     };
 
@@ -50,8 +48,6 @@ export default function GeradorConvite() {
     setMostrarBotaoInstalar(false);
   };
 
-  // ... O restante do código (gerarConvite e return) continua exatamente igual
-
   const gerarConvite = async () => {
     if (!nome) return alert('Digite o nome do convidado!');
     setLoading(true);
@@ -70,12 +66,14 @@ export default function GeradorConvite() {
   };
 
   return (
-    <main className='p-6 max-w-md mx-auto flex flex-col gap-4'>
+    /* CORREÇÃO: Forçado 'bg-gray-50' e 'text-black' no main para o fundo não escurecer totalmente sozinho */
+    <main className='p-6 max-w-md mx-auto flex flex-col gap-4 bg-gray-50 text-black min-h-screen'>
       
       {/* Banner de Instalação Prática do PWA */}
       {mostrarBotaoInstalar && (
-        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg flex flex-col gap-2 items-center text-center animate-bounce">
-          <p className="text-sm text-blue-900 font-medium">Instale este app no seu celular para acessar mais rápido!</p>
+        /* CORREÇÃO: Cores internas fixadas explicitamente */
+        <div className="bg-blue-100 border border-blue-300 p-3 rounded-lg flex flex-col gap-2 items-center text-center animate-bounce">
+          <p className="text-sm text-blue-900 font-bold">Instale este app no seu celular para acessar mais rápido!</p>
           <button 
             onClick={lidarComInstalacao}
             className="bg-blue-600 text-white text-xs px-4 py-2 rounded-md font-bold hover:bg-blue-700 transition-colors cursor-pointer w-full"
@@ -85,14 +83,15 @@ export default function GeradorConvite() {
         </div>
       )}
 
-      <div className='flex justify-between items-center border-b pb-4 mb-2'>
-        <h1 className='text-2xl font-bold'>Gerador de Convites 🎂</h1>
+      <div className='flex justify-between items-center border-b border-gray-300 pb-4 mb-2'>
+        <h1 className='text-2xl font-bold text-black'>Gerador de Convites 🎂</h1>
       </div>
 
+      {/* CORREÇÃO: Forçado 'bg-white', 'text-black' e uma borda cinza bem visível no input */}
       <input
         type='text'
         placeholder='Nome do Convidado'
-        className='border p-2 rounded text-black w-full'
+        className='border-2 border-gray-300 bg-white p-2 rounded text-black w-full font-medium placeholder-gray-400 focus:outline-none focus:border-blue-500'
         value={nome}
         onChange={e => setNome(e.target.value)}
       />
@@ -106,7 +105,7 @@ export default function GeradorConvite() {
       </button>
 
       {qrImageUrl && (
-        <div className='mt-4 flex flex-col items-center gap-4 bg-white p-4 rounded-lg shadow'>
+        <div className='mt-4 flex flex-col items-center gap-4 bg-white p-4 rounded-lg shadow-md border border-gray-100'>
           <p className='text-black font-medium text-center'>Convite de: {nome}</p>
           <img src={qrImageUrl} alt='QR Code Convite' className='w-48 h-48' />
 
@@ -122,12 +121,13 @@ export default function GeradorConvite() {
         </div>
       )}
       
-        <Link 
-          href="/scanner" 
-          className='block text-center bg-black hover:bg-gray-700 text-white p-2 rounded text-sm font-semibold transition-colors'
-        >
-          Ir para Portaria 🎟️
-        </Link>
+      {/* CORREÇÃO: Mudado o fundo do botão para 'bg-gray-800' para destacar melhor no fundo claro fixo */}
+      <Link 
+        href="/scanner" 
+        className='block text-center bg-gray-800 hover:bg-gray-900 text-white p-2 rounded text-sm font-semibold transition-colors mt-auto'
+      >
+        Ir para Portaria 🎟️
+      </Link>
     </main>
   );
 }
